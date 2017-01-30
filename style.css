@@ -1,0 +1,80 @@
+.page-title .branch {
+   display: inline-block;
+   padding: 0 15px;
+   cursor: pointer;
+   color: red;
+   font-size: 23px;
+}
+.page-title .branch:focus,
+.page-title .branch:hover {
+text-decoration: none;
+}
+.page-title .branch:hover {
+   background-color: #FFFF00;
+}
+.page-title .branch:active {
+   background-color: #CCCC00;
+}
+
+header .header-content > h1.title {
+   max-width: none;
+}
+
+h1.title a[targetMR],
+h1.title span.curr {
+   padding: 0 5px;
+   cursor: pointer;
+}
+h1.title .mr-buttons {
+   margin: 0 10px;
+}
+h1.title .mr-buttons a.prev {
+   color: red;
+}
+h1.title .mr-buttons a.next {
+   color: #31af64;
+}
+h1.title .mr-buttons span.curr {
+   cursor: default;
+}
+
+.popup {
+   height: 34px;
+   width: 150px
+}
+.ws-hidden {
+   display: none;
+}
+.merge-request .merge-request-tabs li a{
+   padding: 5px 15px;
+}
+
+.mr-state-widget .mr-widget-body {
+   min-height: 79px;
+}
+
+.accept-merge-holder button.btn.btn-create {
+   background-color: #cccccc;
+   border-color: #999999;
+   text-shadow: 0 0 10px #008000;
+}
+.accept-merge-holder button.btn.btn-create:hover {
+   color: #dfffdf;
+   text-shadow: 0 0 15px #009000;
+}
+
+.div-dropzone.dz-clickable > #note_note {
+   min-height: 33px;
+   height: 33px;
+}
+
+.middle-block {
+   max-height: 75px;
+   overflow-y: scroll;
+}
+
+ul.main-notes-list {
+   max-height: 200px;
+   overflow-y: scroll;
+   overflow-x: hidden;
+}

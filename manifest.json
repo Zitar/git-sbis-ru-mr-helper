@@ -1,0 +1,26 @@
+{
+   "manifest_version": 2,
+   "name": "Git.sbis.ru merge requests helper",
+   "version": "3.1",
+
+   "icons": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+   },
+
+   "content_scripts": [{
+      "matches": [ "https://git.sbis.ru/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+   }],
+
+   "permissions": [
+      "tabs"
+   ],
+
+   "browser_action": {
+      "default_title": "Git.sbis.ru merge requests helper",
+      "default_icon": "icon.png"
+   }
+}
