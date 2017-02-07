@@ -63,7 +63,7 @@
          }
 
          if (title && title.length && (title = title[0])) {
-            title.innerHTML += '&nbspmerge requests:<span class="mr-buttons">' + buttonsStr + '</span>';
+            title.innerHTML += ' / <a href="' + url.replace(/merge_requests\/.*/, 'merge_requests/') + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span>';
             var mrLinks = title.querySelectorAll('a[targetMR]');
             for (i = 0, len = mrLinks.length; i < len; i++) {
                mrLinks[i].onclick = function (e) {
