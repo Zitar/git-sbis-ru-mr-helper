@@ -11,7 +11,17 @@
          len,
    // упорядочивание по убыванию
          compare = function (a, b) {
-            return a > b ? -1 : a < b ? 1 : 0;
+            var regExp = /\d+/g,
+               _a = a.match(regExp),
+               _b = b.match(regExp);
+            for (var i = 0, len = Math.max(_a ? _a.length : 0, _b ? _b.length : 0); i < len; i++) {
+               var aCur = _a && parseInt(_a[i] || '0', 10),
+                  bCur = _b && parseInt(_b[i] || '0', 10);
+               if (aCur !== bCur) {
+                  return aCur > bCur ? -1 : aCur < bCur && 1;
+               }
+            }
+            return 0;
          };
 
    if ((url.match(/new\?/) || []).length) {
