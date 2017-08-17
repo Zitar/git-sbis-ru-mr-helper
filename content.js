@@ -4,6 +4,7 @@
          pageTitle = document.getElementsByClassName('page-title'),
          title = document.querySelectorAll('h1.title'),
          notes = document.querySelectorAll('ul.notes'),
+         blueButton = document.querySelectorAll('.btn.btn-info[title="New Merge Request"]'),
          buttonsStr = '',
          mrRegExp = /merge_requests\/[\d]+/g,
          mrIdMatch = url.match(mrRegExp),
@@ -53,36 +54,41 @@
       xhttp.open('GET', url.split('?')[0], true);
       xhttp.send();
    }
-   else {
-      if (mrIdMatch && mrIdMatch.length) {
-         var curId = parseInt(mrIdMatch[0].match(/\d+/)),
-               sideLen = 5,
-               viewLinkText = function (num) {
-                  var res = num % 100;
-                  return res < 10 ? '0' + res : res + '';
-               };
-         for (i = -sideLen; i <= sideLen; i++) {
-            if (i !== 0) {
-               var nextId = curId + i;
-               buttonsStr += '<a /' +
-               'class="' + (i < 0 ? 'prev' : 'next') + '" targetMR="' + nextId + '" title="' + nextId + '">' + viewLinkText(nextId) + '</a>';
-            }
-            else {
-               buttonsStr += '<span class="curr" title="' + curId + '">' + viewLinkText(curId) + '</span>';
-            }
+   else if (mrIdMatch && mrIdMatch.length) {
+      var curId = parseInt(mrIdMatch[0].match(/\d+/)),
+            sideLen = 5,
+            viewLinkText = function (num) {
+               var res = num % 100;
+               return res < 10 ? '0' + res : res + '';
+            };
+      for (i = -sideLen; i <= sideLen; i++) {
+         if (i !== 0) {
+            var nextId = curId + i;
+            buttonsStr += '<a /' +
+            'class="' + (i < 0 ? 'prev' : 'next') + '" targetMR="' + nextId + '" title="' + nextId + '">' + viewLinkText(nextId) + '</a>';
          }
+         else {
+            buttonsStr += '<span class="curr" title="' + curId + '">' + viewLinkText(curId) + '</span>';
+         }
+      }
 
-         if (title && title.length && (title = title[0])) {
-            title.innerHTML += ' / <a href="' + url.replace(/merge_requests\/.*/, 'merge_requests/') + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span>';
-            var mrLinks = title.querySelectorAll('a[targetMR]');
-            for (i = 0, len = mrLinks.length; i < len; i++) {
-               mrLinks[i].onclick = function (e) {
-                  document.location.href = url.replace(mrRegExp, 'merge_requests/' + e.target.getAttribute('targetMR'));
-               };
-            }
+      if (title && title.length && (title = title[0])) {
+         title.innerHTML += ' / <a href="' + url.replace(/merge_requests\/.*/, 'merge_requests/') + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span>';
+         var mrLinks = title.querySelectorAll('a[targetMR]');
+         for (i = 0, len = mrLinks.length; i < len; i++) {
+            mrLinks[i].onclick = function (e) {
+               document.location.href = url.replace(mrRegExp, 'merge_requests/' + e.target.getAttribute('targetMR'));
+            };
          }
       }
    }
+
+   if (blueButton && blueButton.length && (blueButton = blueButton[0])) {
+      var blueButtonHref = blueButton.href;
+         sourceBrVer = (blueButtonHref.match(/source_branch%5D=[\d\.]+/) + []).match(/[\d\.]{2,}/);
+      blueButton.href = blueButtonHref.replace(/target_branch%5D=rc-[\d\.]+/, 'target_branch%5D=rc-' + sourceBrVer);
+   }
+
    var targetLinks = document.querySelectorAll(
          '.btn.btn-info[title="New Merge Request"], ' +  // синяя кнопка создания MR из последней запушенной ветки
          'a.row_title, ' +                               // ссылки MergeRequest'ов
