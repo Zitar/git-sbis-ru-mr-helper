@@ -1,7 +1,7 @@
 {
    "manifest_version": 2,
    "name": "Git.sbis.ru merge requests helper",
-   "version": "3.4",
+   "version": "3.5",
 
    "icons": {
       "16": "icon.png",

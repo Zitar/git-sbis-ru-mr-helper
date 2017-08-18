@@ -54,6 +54,18 @@
       xhttp.open('GET', url.split('?')[0], true);
       xhttp.send();
    }
+   else if ((url.match(/new$|new#/) || []).length) {
+      var sourceBranches = document.querySelectorAll('.dropdown-source-branch .dropdown-content a'),
+         targetBranches = document.querySelectorAll('.dropdown-target-branch .dropdown-content a');
+
+      for(var i = 0, len = sourceBranches.length; i < len; i++){
+         sourceBranches[i].onclick = function (e) {
+            var targetBrVer = 'rc-' + e.target.innerText.split('\/')[0],
+               targetBr = document.querySelectorAll('.dropdown-target-branch [data-id="' + targetBrVer + '"]');
+            targetBr && targetBr.length && targetBr[0].click();
+         }
+      }
+   }
    else if (mrIdMatch && mrIdMatch.length) {
       var curId = parseInt(mrIdMatch[0].match(/\d+/)),
             sideLen = 5,
@@ -91,6 +103,7 @@
 
    var targetLinks = document.querySelectorAll(
          '.btn.btn-info[title="New Merge Request"], ' +  // синяя кнопка создания MR из последней запушенной ветки
+         '.btn.btn-new[title="New Merge Request"], ' +   // зелёная кнопка создания MR
          'a.row_title, ' +                               // ссылки MergeRequest'ов
          '.title a, ' +                                  // ссылки в title страницы
          'ul.nav.nav-sidebar a[href]'                    // ссылки в правом меню
