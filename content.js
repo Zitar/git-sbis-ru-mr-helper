@@ -2,6 +2,7 @@
    var
          url = document.URL,
          pageTitle = document.getElementsByClassName('page-title'),
+         labelBranch = document.querySelectorAll('p.slead .label-branch'),
          title = document.querySelectorAll('h1.title'),
          notes = document.querySelectorAll('ul.notes'),
          blueButton = document.querySelectorAll('.btn.btn-info[title="New Merge Request"]'),
@@ -30,9 +31,11 @@
       xhttp.onreadystatechange = function () {
          if (this.readyState == 4 && this.status == 200) {
             var versions = this.responseText.match(/>\n(rc-[\d\.]*|development)\n</g).sort(compare),
-                  uniqueVersions = [],
-                  verName,
-                  formGroup = document.querySelectorAll('.form-group');
+               uniqueVersions = [],
+               verName,
+               formGroup = document.querySelectorAll('.form-group'),
+               isCurrent = false;
+            labelBranch = labelBranch && labelBranch.length && labelBranch[labelBranch.length-1];
             for (i = 0, len = versions.length; i < len; i++) {
                verName = versions[i].match(/rc-[\d\.]*|development/) + [];
                if (uniqueVersions.indexOf(verName) < 0) {
@@ -41,7 +44,15 @@
             }
             for (i = Math.min(5, uniqueVersions.length) - 1; i >= 0; i--) {
                verName = uniqueVersions[i];
-               buttonsStr += '<a class="branch" href="' + url.replace(/target_branch%5D=[\w\.\-\%]*/, 'target_branch%5D=' + verName) + '" target="_blank">' + verName + '</a>';
+               isCurrent = labelBranch.textContent === verName;
+               buttonsStr += '<a class="branch' +
+                     (isCurrent ? ' current-branch' : '') + '"' +
+                     (!isCurrent ? ' href="' +
+                        url.replace(/target_branch%5D=[\w\.\-\%]*/, 'target_branch%5D=' + verName) + '"' +
+                        ' target="_blank"' : '' ) +
+                     '>' +
+                     verName +
+                  '</a>';
             }
             pageTitle && pageTitle.length && (pageTitle[0].innerHTML += buttonsStr);
             if (formGroup && formGroup.length) {
@@ -68,11 +79,11 @@
    }
    else if (mrIdMatch && mrIdMatch.length) {
       var curId = parseInt(mrIdMatch[0].match(/\d+/)),
-            sideLen = 5,
-            viewLinkText = function (num) {
-               var res = num % 100;
-               return res < 10 ? '0' + res : res + '';
-            };
+         sideLen = 5,
+         viewLinkText = function (num) {
+            var res = num % 100;
+            return res < 10 ? '0' + res : res + '';
+         };
       for (i = -sideLen; i <= sideLen; i++) {
          if (i !== 0) {
             var nextId = curId + i;

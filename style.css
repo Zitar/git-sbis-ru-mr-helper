@@ -5,14 +5,18 @@
    color: red;
    font-size: 23px;
 }
+.page-title .branch.current-branch {
+   color: grey;
+   cursor: default;
+}
 .page-title .branch:focus,
 .page-title .branch:hover {
-text-decoration: none;
+   text-decoration: none;
 }
-.page-title .branch:hover {
+.page-title .branch:hover:not(.current-branch) {
    background-color: #FFFF00;
 }
-.page-title .branch:active {
+.page-title .branch:active:not(.current-branch) {
    background-color: #CCCC00;
 }
 
