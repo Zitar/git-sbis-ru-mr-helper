@@ -1,30 +1,46 @@
 (function () {
-   var
-         url = document.URL,
-         pageTitle = document.getElementsByClassName('page-title'),
-         labelBranch = document.querySelectorAll('p.slead .label-branch'),
-         title = document.querySelectorAll('h1.title'),
-         notes = document.querySelectorAll('ul.notes'),
-         blueButton = document.querySelectorAll('.btn.btn-info[title="New Merge Request"]'),
-         buttonsStr = '',
-         mrRegExp = /merge_requests\/[\d]+/g,
-         mrIdMatch = url.match(mrRegExp),
-         i,
-         len,
+
    // упорядочивание по убыванию
-         compare = function (a, b) {
-            var regExp = /\d+/g,
-               _a = a.match(regExp),
-               _b = b.match(regExp);
-            for (var i = 0, len = Math.max(_a ? _a.length : 0, _b ? _b.length : 0); i < len; i++) {
-               var aCur = _a && parseInt(_a[i] || '0', 10),
-                  bCur = _b && parseInt(_b[i] || '0', 10);
-               if (aCur !== bCur) {
-                  return aCur > bCur ? -1 : aCur < bCur && 1;
-               }
-            }
-            return 0;
-         };
+   function compare (a, b) {
+      var regExp = /\d+/g,
+         _a = a.match(regExp),
+         _b = b.match(regExp);
+      for (var i = 0, len = Math.max(_a ? _a.length : 0, _b ? _b.length : 0); i < len; i++) {
+         var aCur = _a && parseInt(_a[i] || '0', 10),
+            bCur = _b && parseInt(_b[i] || '0', 10);
+         if (aCur !== bCur) {
+            return aCur > bCur ? -1 : aCur < bCur && 1;
+         }
+      }
+      return 0;
+   };
+
+   // получение id пользователя
+   function getUserId () {
+      var scripts = document.scripts,
+         userId;
+      for (var i = 0; i < scripts.length; i++) {
+         var innerHtml = scripts[i].innerHTML,
+            tmpUserId = innerHtml && innerHtml.match(/current_user_id\=[\d]+\;/);
+         if (tmpUserId) {
+            userId = +('' + tmpUserId).match(/[\d]+/g);
+            break;
+         }
+      }
+      return userId;
+   }
+
+   var url = document.URL,
+      pageTitle = document.getElementsByClassName('page-title'),
+      labelBranch = document.querySelectorAll('p.slead .label-branch'),
+      title = document.querySelectorAll('h1.title'),
+      notes = document.querySelectorAll('ul.notes'),
+      blueButton = document.querySelectorAll('.btn.btn-info[title="New Merge Request"]'),
+      buttonsStr = '',
+      mrRegExp = /merge_requests\/[\d]+/g,
+      mrIdMatch = url.match(mrRegExp),
+      i,
+      len;
 
    if ((url.match(/new\?/) || []).length) {
       var xhttp = new XMLHttpRequest();
@@ -79,7 +95,7 @@
    }
    else if (mrIdMatch && mrIdMatch.length) {
       var curId = parseInt(mrIdMatch[0].match(/\d+/)),
-         sideLen = 5,
+         sideLen = 3,
          viewLinkText = function (num) {
             var res = num % 100;
             return res < 10 ? '0' + res : res + '';
@@ -96,7 +112,10 @@
       }
 
       if (title && title.length && (title = title[0])) {
-         title.innerHTML += ' / <a href="' + url.replace(/merge_requests\/.*/, 'merge_requests/') + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span>';
+         var userId = getUserId(),
+            mrsUrlParams = typeof userId === 'number' ? '?scope=all&state=opened&utf8=✓&author_id=' + userId : '',
+            mrsUrl = url.replace(/merge_requests\/.*/, 'merge_requests/');
+         title.innerHTML += ' / <a href="' + mrsUrl + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span> / <a href="' + mrsUrl + mrsUrlParams + '">my</a>';
          var mrLinks = title.querySelectorAll('a[targetMR]');
          for (i = 0, len = mrLinks.length; i < len; i++) {
             mrLinks[i].onclick = function (e) {

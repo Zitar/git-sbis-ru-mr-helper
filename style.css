@@ -30,7 +30,7 @@ h1.title span.curr {
    cursor: pointer;
 }
 h1.title .mr-buttons {
-   margin: 0 10px;
+   margin-left: 10px;
 }
 h1.title .mr-buttons a.prev {
    color: red;
