@@ -82,3 +82,8 @@ ul.main-notes-list {
    overflow-y: scroll;
    overflow-x: hidden;
 }
+
+.description p {
+   max-height: 200px;
+   overflow-y: scroll;
+}
