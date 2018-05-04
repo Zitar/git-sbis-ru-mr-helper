@@ -32,10 +32,10 @@
 
    var url = document.URL,
       pageTitle = document.getElementsByClassName('page-title'),
-      labelBranch = document.querySelectorAll('p.slead .label-branch'),
+      labelBranch = document.querySelectorAll('p.slead .ref-name'),
       title = document.querySelectorAll('h1.title'),
       notes = document.querySelectorAll('ul.notes'),
-      blueButton = document.querySelectorAll('.btn.btn-info[title="New Merge Request"]'),
+      blueButton = document.querySelectorAll('.event-last-push .btn.btn-info'),
       buttonsStr = '',
       mrRegExp = /merge_requests\/[\d]+/g,
       mrIdMatch = url.match(mrRegExp),
