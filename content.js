@@ -35,6 +35,7 @@
       labelBranch = document.querySelectorAll('p.slead .ref-name'),
       title = document.querySelectorAll('h1.title'),
       notes = document.querySelectorAll('ul.notes'),
+      navLink = document.querySelectorAll('.layout-nav .nav-links a[href*="merge_requests"]'),
       blueButton = document.querySelectorAll('.event-last-push .btn.btn-info'),
       buttonsStr = '',
       mrRegExp = /merge_requests\/[\d]+/g,
@@ -42,6 +43,7 @@
       i,
       len;
 
+   // создание нового Merge Request'а
    if ((url.match(/new\?/) || []).length) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
@@ -81,6 +83,8 @@
       xhttp.open('GET', url.split('?')[0], true);
       xhttp.send();
    }
+
+   // при создании нового Merge Request'а выбор ветки, куда мержить
    else if ((url.match(/new$|new#/) || []).length) {
       var sourceBranches = document.querySelectorAll('.dropdown-source-branch .dropdown-content a'),
          targetBranches = document.querySelectorAll('.dropdown-target-branch .dropdown-content a');
@@ -93,6 +97,8 @@
          }
       }
    }
+
+   // просмотрт созданного Merge Request'а
    else if (mrIdMatch && mrIdMatch.length) {
       var curId = parseInt(mrIdMatch[0].match(/\d+/)),
          sideLen = 3,
@@ -112,10 +118,9 @@
       }
 
       if (title && title.length && (title = title[0])) {
-         var userId = getUserId(),
-            mrsUrlParams = typeof userId === 'number' ? '?scope=all&state=opened&utf8=✓&author_id=' + userId : '',
+         var
             mrsUrl = url.replace(/merge_requests\/.*/, 'merge_requests/');
-         title.innerHTML += ' / <a href="' + mrsUrl + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span> / <a href="' + mrsUrl + mrsUrlParams + '">my</a>';
+         title.innerHTML += ' / <a href="' + mrsUrl + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span>';
          var mrLinks = title.querySelectorAll('a[targetMR]');
          for (i = 0, len = mrLinks.length; i < len; i++) {
             mrLinks[i].onclick = function (e) {
@@ -125,6 +130,26 @@
       }
    }
 
+   // добавление ссылки "My MRs"
+   if (navLink && navLink.length) {
+      var mrLink = navLink[0],
+         mrLinkParent = mrLink.parentElement,
+         userId = getUserId(),
+         mrsUrlParams = typeof userId === 'number' ? '?scope=all&state=opened&utf8=✓&author_id=' + userId : '',
+         myMrLink = mrLinkParent.cloneNode(true);
+         myMrLinkClass = '';
+      if(~location.search.indexOf('author_')){
+         myMrLink.className = 'active';
+         mrLinkParent.className = mrLinkParent.className.replace('active', '');
+      }
+      else {
+         myMrLink.className = '';
+      }
+      myMrLink.innerHTML = '<a class="' + mrLink.className + '" href="' + mrLink.href + mrsUrlParams + '">My MRs</a>';
+      mrLinkParent.parentElement.insertBefore(myMrLink, mrLinkParent.nextSibling);
+   }
+
+   // обработчик на виней кнопке создания Merge Request'а из последней запушенной ветки
    if (blueButton && blueButton.length && (blueButton = blueButton[0])) {
       var blueButtonHref = blueButton.href;
          sourceBrVer = (blueButtonHref.match(/source_branch%5D=[\d\.]+/) + []).match(/[\d\.]{2,}/);
