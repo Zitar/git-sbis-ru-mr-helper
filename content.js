@@ -30,12 +30,16 @@
       return userId;
    }
 
+   function getUrlToSearchBranch (searchStr) {
+      return url.replace(/\/merge_requests.*/, '/refs?search=' + searchStr + '&find=branches');
+   }
+
    var url = document.URL,
       pageTitle = document.getElementsByClassName('page-title'),
       labelBranch = document.querySelectorAll('p.slead .ref-name'),
-      title = document.querySelectorAll('h1.title'),
+      breadCrumbs = document.querySelectorAll('.breadcrumbs .breadcrumbs-list'),
       notes = document.querySelectorAll('ul.notes'),
-      navLink = document.querySelectorAll('.layout-nav .nav-links a[href*="merge_requests"]'),
+      navLink = document.querySelectorAll('.nav-sidebar .sidebar-top-level-items a[href*="merge_requests"]'),
       blueButton = document.querySelectorAll('.event-last-push .btn.btn-info'),
       buttonsStr = '',
       mrRegExp = /merge_requests\/[\d]+/g,
@@ -48,28 +52,32 @@
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
          if (this.readyState == 4 && this.status == 200) {
-            var versions = this.responseText.match(/>\n(rc-[\d\.]*|development)\n</g).sort(compare),
+            var xhttpForDev = new XMLHttpRequest(),
+               versions = (JSON.parse(this.response).Branches || []).sort(compare),
                uniqueVersions = [],
                verName,
                formGroup = document.querySelectorAll('.form-group'),
                isCurrent = false;
             labelBranch = labelBranch && labelBranch.length && labelBranch[labelBranch.length-1];
             for (i = 0, len = versions.length; i < len; i++) {
-               verName = versions[i].match(/rc-[\d\.]*|development/) + [];
-               if (uniqueVersions.indexOf(verName) < 0) {
-                  uniqueVersions.splice(verName === 'development' ? 0 : uniqueVersions.length, 0, verName);
+               verName = versions[i].match(/^rc-[\d\.]*|^development/);
+               if (verName && verName.length) {
+                  verName += [];
+                  if (uniqueVersions.indexOf(verName) < 0) {
+                     uniqueVersions.splice(verName === 'development' ? 0 : uniqueVersions.length, 0, verName);
+                  }
                }
             }
             for (i = Math.min(5, uniqueVersions.length) - 1; i >= 0; i--) {
                verName = uniqueVersions[i];
                isCurrent = labelBranch.textContent === verName;
                buttonsStr += '<a class="branch' +
-                     (isCurrent ? ' current-branch' : '') + '"' +
-                     (!isCurrent ? ' href="' +
-                        url.replace(/target_branch%5D=[\w\.\-\%]*/, 'target_branch%5D=' + verName) + '"' +
-                        ' target="_blank"' : '' ) +
-                     '>' +
-                     verName +
+                  (isCurrent ? ' current-branch' : '') + '"' +
+                  (!isCurrent ? ' href="' +
+                     url.replace(/target_branch%5D=[\w\.\-\%]*/, 'target_branch%5D=' + verName) + '"' +
+                     ' target="_blank"' : '') +
+                  '>' +
+                  verName +
                   '</a>';
             }
             pageTitle && pageTitle.length && (pageTitle[0].innerHTML += buttonsStr);
@@ -80,53 +88,39 @@
             }
          }
       }.bind(xhttp);
-      xhttp.open('GET', url.split('?')[0], true);
+      xhttp.open('GET', getUrlToSearchBranch('rc-'), true);
       xhttp.send();
-   }
-
-   // при создании нового Merge Request'а выбор ветки, куда мержить
-   else if ((url.match(/new$|new#/) || []).length) {
-      var sourceBranches = document.querySelectorAll('.dropdown-source-branch .dropdown-content a'),
-         targetBranches = document.querySelectorAll('.dropdown-target-branch .dropdown-content a');
-
-      for(var i = 0, len = sourceBranches.length; i < len; i++){
-         sourceBranches[i].onclick = function (e) {
-            var targetBrVer = 'rc-' + e.target.innerText.split('\/')[0],
-               targetBr = document.querySelectorAll('.dropdown-target-branch [data-id="' + targetBrVer + '"]');
-            targetBr && targetBr.length && targetBr[0].click();
-         }
-      }
    }
 
    // просмотрт созданного Merge Request'а
    else if (mrIdMatch && mrIdMatch.length) {
       var curId = parseInt(mrIdMatch[0].match(/\d+/)),
          sideLen = 3,
-         viewLinkText = function (num) {
-            var res = num % 100;
+         viewLinkText = function (id) {
+            var res = id % 100;
             return res < 10 ? '0' + res : res + '';
-         };
-      for (i = -sideLen; i <= sideLen; i++) {
-         if (i !== 0) {
-            var nextId = curId + i;
-            buttonsStr += '<a /' +
-            'class="' + (i < 0 ? 'prev' : 'next') + '" targetMR="' + nextId + '" title="' + nextId + '">' + viewLinkText(nextId) + '</a>';
-         }
-         else {
-            buttonsStr += '<span class="curr" title="' + curId + '">' + viewLinkText(curId) + '</span>';
-         }
-      }
+         },
+         linkHref = function (id) {
+            return (mrUrlPrefix || '') + id;
+         },
+         lastLi,
+         lastLiLink,
+         mrUrlPrefix;
+      if (breadCrumbs && breadCrumbs.length && (breadCrumbs = breadCrumbs[0])) {
+         lastLiLink = breadCrumbs.querySelectorAll('a[href*="merge_requests/' + curId + '"]');
+         lastLi = lastLiLink && lastLiLink.length && lastLiLink[0].parentElement;
+         mrUrlPrefix = lastLiLink.length && lastLiLink[0].href.replace(/merge_requests\/.*/, 'merge_requests/');
 
-      if (title && title.length && (title = title[0])) {
-         var
-            mrsUrl = url.replace(/merge_requests\/.*/, 'merge_requests/');
-         title.innerHTML += ' / <a href="' + mrsUrl + '">merge_requests</a>:<span class="mr-buttons">' + buttonsStr + '</span>';
-         var mrLinks = title.querySelectorAll('a[targetMR]');
-         for (i = 0, len = mrLinks.length; i < len; i++) {
-            mrLinks[i].onclick = function (e) {
-               document.location.href = url.replace(mrRegExp, 'merge_requests/' + e.target.getAttribute('targetMR'));
-            };
+         for (i = -sideLen; i <= sideLen; i++) {
+            var nextId = curId + i;
+            buttonsStr += '<a ' +
+               'class="merge-requests-link ' + (i < 0 ? 'prev' : i === 0 ? 'curr' : 'next') +
+               (i !== 0 ? '" href="' + linkHref(nextId) +
+                  '" targetMR="' + nextId + '" title="' + nextId : '') +
+               '">' + viewLinkText(nextId) + '</a>';
          }
+
+         lastLi.innerHTML = buttonsStr;
       }
    }
 

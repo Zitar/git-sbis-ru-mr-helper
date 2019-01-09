@@ -24,22 +24,21 @@ header .header-content > h1.title {
    max-width: none;
 }
 
-h1.title a[targetMR],
-h1.title span.curr {
+.merge-requests-link {
    padding: 0 5px;
    cursor: pointer;
 }
-h1.title .mr-buttons {
-   margin-left: 10px;
-}
-h1.title .mr-buttons a.prev {
+.merge-requests-link.prev {
    color: red;
 }
-h1.title .mr-buttons a.next {
+.merge-requests-link.next {
    color: #31af64;
 }
-h1.title .mr-buttons span.curr {
+.merge-requests-link.curr {
    cursor: default;
+}
+.merge-requests-link.curr:hover {
+   text-decoration: none;
 }
 
 .popup {
@@ -47,7 +46,7 @@ h1.title .mr-buttons span.curr {
    width: 150px
 }
 .ws-hidden {
-   display: none;
+   display: none!important;
 }
 .merge-request .merge-request-tabs li a{
    padding: 5px 15px;
